@@ -9,13 +9,19 @@ const game = {
 
     x: 0,
     y: 0,
-    
 
+    startingTile:null,
 
     init: function(){
         game.addEventListeners();
         game.setupCanvas();
         setInterval(game.draw, 15);
+        map.generateLevel();
+
+        // we get a passableTile for the player's starting point
+        game.startingTile = map.randomPassableTile();
+        game.x = game.startingTile.x;
+        game.y = game.startingTile.y;
     },
 
     addEventListeners: function(){
@@ -36,11 +42,23 @@ const game = {
     },
 
     draw: function () {
+        // clearing the board
         game.ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
-        // game.ctx.fillRect(game.x*game.ts, game.y*game.ts, game.ts, game.ts);
+
+        // drawing the map
+        for(let i=0; i<game.numTiles; i++){
+            for(let j=0; j<game.numTiles; j++){
+                map.getTile(i,j).draw();
+            }
+        }
+
+        // drawing the player
         game.drawSprite(0, game.x, game.y)
     },
 
+    // premier argument = fichier à afficher
+    // 4 suivants = restreint quelle partie du fichier afficher
+    // 4 suivants = classiques du drawImage/fillRect
     drawSprite: function (sprite, x, y) {
         game.ctx.drawImage(
             spritesheet,

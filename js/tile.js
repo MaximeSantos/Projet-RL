@@ -19,6 +19,6 @@ class Floor extends Tile {
 
 class Wall extends Tile {
     constructor (x, y){
-        super(x, y, 3, true);
+        super(x, y, 3, false);
     };
 }

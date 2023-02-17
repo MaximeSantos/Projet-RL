@@ -37,6 +37,7 @@ map = {
             let x = util.randomRange(0, game.numTiles-1);
             let y = util.randomRange(0, game.numTiles-1);
             tile = map.getTile(x,y);
+            console.log('On passe dans le randomPassable tile', tile);
             return tile.passable && !tile.monster;
         });
         return tile;

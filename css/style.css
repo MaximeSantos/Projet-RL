@@ -3,7 +3,8 @@ canvas {
 }
 
 body {
-    background-color: #445e99;
+    background: rgb(18,18,18);
+    background: linear-gradient(45deg, rgba(18,18,18,1) 0%, rgba(68,94,153,1) 45%, rgba(18,18,18,1) 100%);
     text-align: center;
     margin-top: 50px;
 }

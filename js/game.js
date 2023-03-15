@@ -10,8 +10,10 @@ const game = {
 
     startingHp: 3,
     numLevels: 6,
+    nbTreasures: 3,
+    score: null,
 
-    player:null,
+    player: null,
     startingTile:null,
 
     gameState: "loading",
@@ -60,7 +62,9 @@ const game = {
             // drawing the player
             game.player.draw();
 
-            game.drawText("Level: " + game.level, 30, false, 40, "violet")
+            game.drawText("Level: " + game.level, 30, false, 40, "violet");
+
+            game.drawText("Level: " + game.score, 30, false, 70, "violet");
         }
     },
 
@@ -98,6 +102,77 @@ const game = {
         game.ctx.fillText(text, textX, textY);
     },
 
+    drawScore: function(){
+        let scores = game.getScores();
+        if(scores.length){
+            game.drawText(
+                util.rightPad(["RUN", "SCORE", "TOTAL"]),
+                18,
+                true,
+                game.canvas.height / 2,
+                "white"
+            );
+
+            let newestScore = scores.pop();
+            scores.sort(function(a,b){
+                return b.totalScore - a.totalScore;
+            });
+            scores.unshift(newestScore);
+
+            for(let i = 0; i<Math.min(10, scores.length); i++){
+                let scoreText = util.rightPad([scores[i].run, scores[i].score, scores[i].totalScore]);
+                game.drawText(
+                    scoreText,
+                    18,
+                    true,
+                    game.canvas.height / 2 + 24 + i * 24,
+                    i == 0 ? "aqua" : "violet"
+                );
+            }
+        }
+    },
+
+    // this function allows us to add our score to LS in two cases : if we won or if we lost
+    // we add to ability to have win streaks, allowing us to add up our scores from our win streaks
+    addScore: function(score, won){
+        // retrieves our scores from localstorage
+        let scores = game.getScores();
+        // create an objet of our current score
+        let scoreObject = {
+            score: game.score,
+            run: 1,
+            totalScore: game.score,
+            active: won
+        };
+        // we retrieve last score (will be active if it got added from a win)
+        let lastScore = scores.pop();
+
+        // if our last run was a win, we add both scores together to reward win streaks
+        if(lastScore){
+            if(lastScore.active){
+                scoreObject.run = lastScore.run + 1;
+                scoreObject.totalScore += lastScore.totalScore;
+            }else{
+                // else we juste put back score from last game
+                scores.push(lastScore);
+            }
+        }
+        // add our new score to our array
+        scores.push(scoreObject);
+
+        // add our add back to localstorage
+        localStorage["scores"] = JSON.stringify(scores);
+    },
+
+    // if there are scores in localstorage return that else return empty array
+    getScores: function(){
+        if(localStorage["scores"]){
+            return JSON.parse(localStorage["scores"]);
+        }else{
+            return [];
+        }
+    },
+
     // updates the world aned the monsters in it
     // sets gameState if player is dead
     tick: function(){
@@ -112,6 +187,8 @@ const game = {
 
         // change state if player is dead
         if(game.player.dead){
+            game.addScore(game.score, false);
+
             game.gameState = "dead";
         }
 
@@ -129,12 +206,16 @@ const game = {
 
         game.gameState = "title";
 
-        game.drawText("CROWGUE - LIKE", 70, true, game.canvas.height/2 - 110, "white");
-        game.drawText("A test project", 20, true, game.canvas.height/2 - 20, "white");
+        game.drawText("CROWGUE - LIKE", 70, true, game.canvas.height/2 - 150, "white");
+        game.drawText("A test project", 20, true, game.canvas.height - 20, "white");
+
+        game.drawScore();
     },
 
     startGame: function(){
         game.level = 1;
+        game.score = 0;
+
         game.startLevel(game.startingHp);
 
         game.gameState = "running";

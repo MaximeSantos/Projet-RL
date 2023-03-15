@@ -13,6 +13,10 @@ map = {
         });
 
         map.generateMonsters();
+
+        for(let i = 0; i < game.nbTreasures; i++){
+            map.randomPassableTile().treasure = true; // TODO make sure the treasure doesnt spawn on the player
+        }
     },
 
     generateTiles: function() {

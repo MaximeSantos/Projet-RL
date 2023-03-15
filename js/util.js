@@ -25,4 +25,16 @@ util = {
         }
         return arr;
     },
+
+    rightPad: function(textArray){
+        let finalText = "";
+        textArray.forEach(text => {
+            text += "";
+            for(let i = text.length; i < 10; i++){
+                text += " ";
+            }
+            finalText += text;
+        });
+        return finalText;
+    },
 }

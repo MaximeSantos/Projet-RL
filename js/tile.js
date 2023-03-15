@@ -6,6 +6,13 @@ class Tile {
         this.passable = passable;
     }
 
+    // ! ----------------------------------------------------------------
+    // TODO copy monsters & items from old tile to the new one
+    replace(newTileType){
+        map.tiles[this.x][this.y] = new newTileType(his.x, this.y);
+        return map.tiles[this.x][this.y];
+    }
+
     //manhattan distance
     dist(other){
         return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);

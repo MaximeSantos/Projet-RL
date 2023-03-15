@@ -9,6 +9,8 @@ const game = {
 
     level: 1,
 
+    maxHp: 6,
+
     player:null,
 
     startingTile:null,
@@ -95,6 +97,7 @@ const game = {
         if(e.key=="s") game.player.tryMove(0, 1);
         if(e.key=="q") game.player.tryMove(-1, 0);
         if(e.key=="d") game.player.tryMove(1, 0);
+        if(e.key==" ") game.player.wait();
     },
 };
 

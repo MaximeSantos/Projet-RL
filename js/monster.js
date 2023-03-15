@@ -3,6 +3,8 @@ class Monster {
         this.move(tile);
         this.sprite = sprite;
         this.hp = hp;
+
+        this.teleportCounter = 2;
     }
 
     // monsters can heal but wont exceed a maxHp property set in game.js
@@ -11,7 +13,11 @@ class Monster {
     }
 
     update(){
-        if(this.stunned){
+        // if(this.teleportCounter > 0) this.teleportCounter--;
+        if(this.teleportCounter--); // decrements the counter until it reaches 0 where it will evaluate as false
+
+        // do nothing if the monster is either stunned or teleporting in
+        if(this.stunned || this.teleportCounter > 0){
             this.stunned = false;
             return
         }
@@ -24,6 +30,7 @@ class Monster {
         let neighbors = this.tile.getAdjacentPassableNeighbors();
         neighbors = neighbors.filter(t => !t.monster || t.monster.isPlayer);
 
+        // by default monsters will try to go after the player using the manhattan distance
         if(neighbors.length){
             neighbors.sort((a,b) => a.dist(game.player.tile) - b.dist(game.player.tile));
             let newTile = neighbors[0];
@@ -32,9 +39,12 @@ class Monster {
     }
 
     draw(){
-        game.drawSprite(this.sprite, this.tile.x, this.tile.y);
-
-        this.drawHp();
+        if(this.teleportCounter >0){
+            game.drawSprite(10, this.tile.x, this.tile.y);
+        }else{
+            game.drawSprite(this.sprite, this.tile.x, this.tile.y);
+            this.drawHp();
+        }
     }
 
     // Hp pips are drawn left to write, offset by 5 pixels each and then stacked vertically offset by 5 pixels each row
@@ -57,12 +67,11 @@ class Monster {
                 this.move(newTile);
             }else{
                 if(this.isPlayer != newTile.monster.isPlayer){
-
                     this.attackedThisTurn = true;
 
-                    newTile.monster.stunne = true;
+                    newTile.monster.stunned = true;
 
-                    newTile.monster.hit(1);
+                    newTile.monster.hit(1); // TODO Monsters that are TPing should not be able to get hit
                 }
             }
             return true;
@@ -81,16 +90,19 @@ class Monster {
     die(){
         this.dead = true;
         this.tile.monster = null;
-        this.sprite = 1; // sprite of dead-player
+        this.sprite = 1; // sprite of dead player in the spritesheet
     }
 
-    // we remove monster from previous tile and add it to the new tile
+    // when a monster moves we remove it from previous tile and add it to the new tile
+    // we also trigger the stepOn method for the tile and pass it the monster in the argument
     move(tile){
         if(this.tile){
             this.tile.monster = null;
         }
         this.tile = tile;
         tile.monster = this;
+
+        tile.stepOn(this);
     }
 }
 
@@ -98,6 +110,7 @@ class Player extends Monster {
     constructor(tile){
         super(tile, 0, 3);
         this.isPlayer = true;
+        this.teleportCounter = 0;
     }
 
     // we override the method in Monster
@@ -136,9 +149,9 @@ class Blocky extends Monster{
 }
 
 // can move twice (but attack once)
-class Sticky extends Monster{
+class Slimmy extends Monster{
     constructor(tile){
-        super(tile, 6, 2);
+        super(tile, 6, 1);
     }
 
     doStuff(){
@@ -157,6 +170,7 @@ class Biggy extends Monster{
         super(tile, 7, 1);
     }
 
+    // TODO no working properly -- never eats walls ?
     // we check for nearby walls that are not outer walls -- and eat one if there are any, transforming it into a floor and restoring health to the monster
     doStuff(){
         let neighbors = this.tile.getAdjacentPassableNeighbors().filter(t => !t.passable && map.inBounds(t.x, t.y));
@@ -168,7 +182,6 @@ class Biggy extends Monster{
             super.doStuff();
         }
     }
-
 }
 
 // moves randomly

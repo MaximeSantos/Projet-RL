@@ -9,11 +9,13 @@ class Tile {
     // ! ----------------------------------------------------------------
     // TODO copy monsters & items from old tile to the new one
     replace(newTileType){
-        map.tiles[this.x][this.y] = new newTileType(his.x, this.y);
+        map.tiles[this.x][this.y] = new newTileType(this.x, this.y);
         return map.tiles[this.x][this.y];
     }
 
-    //manhattan distance
+    // Manhattan distance
+    // https://en.wikipedia.org/wiki/Taxicab_geometry
+    // We could look into the A* (a star) algorithm, but more complex https://en.wikipedia.org/wiki/A*_search_algorithm#Pseudocode
     dist(other){
         return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
     }
@@ -43,19 +45,19 @@ class Tile {
 
     
     /*
-        create a list of tiles to check for connectedness
-        create a list of connected tiles
+    create a list of tiles to check for connectedness
+    create a list of connected tiles
 
-        add a single random passable tile to both lists
+    add a single random passable tile to both lists
 
-        while there are more tiles to check...
-            pick one
-            get its neighbors
-            filter out the walls
-            filter out the tiles we've already found were connected
-            add the filtered neighbors to a list of connected tiles and to the tiles that need to be checked
+    while there are more tiles to check...
+        pick one
+        get its neighbors
+        filter out the walls
+        filter out the tiles we've already found were connected
+        add the filtered neighbors to a list of connected tiles and to the tiles that need to be checked
 
-        return the list of connected tiles
+    return the list of connected tiles
     */
     getConnectedTiles(){
         let connectedTiles = [this];
@@ -80,10 +82,33 @@ class Floor extends Tile {
     constructor (x, y){
         super(x, y, 2, true);
     };
+
+    stepOn(monster){
+        // TODO complete this function
+    }
 }
 
 class Wall extends Tile {
     constructor (x, y){
         super(x, y, 3, false);
     };
+}
+
+class Exit extends Tile {
+    constructor (x, y){
+        super(x, y, 11, true);
+    }
+
+    // 
+    stepOn(monster){
+        if (monster.isPlayer){
+            if(game.level == game.numLevels){
+                // victory
+                game.showTitle();
+            }else{
+                game.level++;
+                game.startLevel(Math.min(game.maxHp, game.player.hp+1));
+            }
+        }
+    }
 }

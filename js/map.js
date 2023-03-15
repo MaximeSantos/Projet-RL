@@ -3,6 +3,9 @@ map = {
 
     monsters: [],
 
+    spawnCounter: null,
+    spawnRate: null,
+
     generateLevel: function() {
         // map.generateTiles();
         util.tryTo('generate map', function(){
@@ -60,7 +63,7 @@ map = {
     },
 
     spawnMonster: function() {
-        let monsterType = util.shuffle([Blobby, Blocky, Sticky, Biggy ,Snaky])[0];
+        let monsterType = util.shuffle([Blobby, Blocky, Slimmy, Biggy ,Snaky])[0];
         let monster = new monsterType(map.randomPassableTile());
         map.monsters.push(monster)
     },

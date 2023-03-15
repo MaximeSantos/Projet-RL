@@ -1,11 +1,15 @@
 map = {
     tiles: [],
 
+    monsters: [],
+
     generateLevel: function() {
         // map.generateTiles();
         util.tryTo('generate map', function(){
             return map.generateTiles() == map.randomPassableTile().getConnectedTiles().length;
         });
+
+        map.generateMonsters();
     },
 
     generateTiles: function() {
@@ -46,5 +50,18 @@ map = {
             return tile.passable && !tile.monster;
         });
         return tile;
-    }
+    },
+
+    generateMonsters: function() {
+        let numMonsters = game.level+1;
+        for(let i = 0; i < numMonsters; i++){
+            map.spawnMonster();
+        }
+    },
+
+    spawnMonster: function() {
+        let monsterType = util.shuffle([Blobby, Blocky, Sticky, Biggy ,Snaky])[0];
+        let monster = new monsterType(map.randomPassableTile());
+        map.monsters.push(monster)
+    },
 }

@@ -7,8 +7,9 @@ const game = {
     numTiles: 9,
     uiWidth: 4,
 
-    x: 0,
-    y: 0,
+    level: 1,
+
+    player:null,
 
     startingTile:null,
 
@@ -19,9 +20,7 @@ const game = {
         map.generateLevel();
 
         // we get a passableTile for the player's starting point
-        game.startingTile = map.randomPassableTile();
-        game.x = game.startingTile.x;
-        game.y = game.startingTile.y;
+        game.player = new Player(map.randomPassableTile());
     },
 
     addEventListeners: function(){
@@ -52,8 +51,26 @@ const game = {
             }
         }
 
+        // drawing the monsters
+        for(let i = 0; i<map.monsters.length; i++){
+            map.monsters[i].draw();
+        }
+
+
         // drawing the player
-        game.drawSprite(0, game.x, game.y)
+        game.player.draw();
+    },
+
+    // updates the world aned the monsters in it
+    tick: function(){
+        // we reverse the loop so that we can splice them out of the array safely if they are dead
+        for(let k = map.monsters.length-1; k >= 0; k--){
+            if(!map.monsters[k].dead){
+                map.monsters[k].update();
+            }else{
+                map.monsters.splice(k,1);
+            }
+        }
     },
 
     // premier argument = fichier à afficher
@@ -74,10 +91,10 @@ const game = {
     },
 
     handleKeyPresses: function (e) {
-        if(e.key=="z") game.y--;
-        if(e.key=="s") game.y++;
-        if(e.key=="q") game.x--;
-        if(e.key=="d") game.x++;
+        if(e.key=="z") game.player.tryMove(0, -1);
+        if(e.key=="s") game.player.tryMove(0, 1);
+        if(e.key=="q") game.player.tryMove(-1, 0);
+        if(e.key=="d") game.player.tryMove(1, 0);
     },
 };
 

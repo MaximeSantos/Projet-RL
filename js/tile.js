@@ -6,6 +6,11 @@ class Tile {
         this.passable = passable;
     }
 
+    //manhattan distance
+    dist(other){
+        return Math.abs(this.x - other.x) + Math.abs(this.y - other.y);
+    }
+
     // getNeighbor, getAdjacentNeighbors, getAdjacentPassableNeighbors and getConnectedTiles are needed for our flood fill
     // => https://en.wikipedia.org/wiki/Flood_fill
 

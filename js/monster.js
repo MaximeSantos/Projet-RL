@@ -3,8 +3,10 @@ class Monster {
         this.move(tile);
         this.sprite = sprite;
         this.hp = hp;
-
         this.teleportCounter = 2;
+
+        this.offsetX = 0;
+        this.offsetY = 0;
     }
 
     // monsters can heal but wont exceed a maxHp property set in game.js
@@ -38,13 +40,25 @@ class Monster {
         }
     }
 
+    getDisplayX(){
+        return this.tile.x + this.offsetX;
+    }
+
+    getDisplayY(){
+        return this.tile.y + this.offsetY;
+    }
+
     draw(){
         if(this.teleportCounter >0){
-            game.drawSprite(10, this.tile.x, this.tile.y);
+            game.drawSprite(10, this.getDisplayX(), this.getDisplayY());
         }else{
-            game.drawSprite(this.sprite, this.tile.x, this.tile.y);
+            game.drawSprite(this.sprite, this.getDisplayX(), this.getDisplayY());
             this.drawHp();
         }
+
+        // animates the moving animation
+        this.offsetX -= Math.sign(this.offsetX) * (1 / 8); // Math.sign returns -1 if given a negative, 0 if 0, +1 if positive
+        this.offsetY -= Math.sign(this.offsetY) * (1 / 8); // allows us to move in the correct direction until the offset is zero
     }
 
     // Hp pips are drawn left to write, offset by 5 pixels each and then stacked vertically offset by 5 pixels each row
@@ -52,8 +66,8 @@ class Monster {
         for(let i = 0; i < this.hp; i++){
             game.drawSprite(
                 9,
-                this.tile.x + (i%3) * (5/16),
-                this.tile.y - Math.floor(i/3) * (5/16)
+                this.getDisplayX() + (i%3) * (5/16),
+                this.getDisplayY() - Math.floor(i/3) * (5/16)
             );
         }
     }
@@ -70,8 +84,12 @@ class Monster {
                     this.attackedThisTurn = true;
 
                     newTile.monster.stunned = true;
+                    newTile.monster.hit(1); // TODO Monsters that are TPing should not be able to get hit?
 
-                    newTile.monster.hit(1); // TODO Monsters that are TPing should not be able to get hit
+                    game.shakeAmount = 3; // TODO screenshake only when the player gets hit ?
+
+                    this.offsetX = (newTile.x - this.tile.x) / 2;
+                    this.offsetY = (newTile.y - this.tile.y) / 2;
                 }
             }
             return true;
@@ -98,6 +116,9 @@ class Monster {
     move(tile){
         if(this.tile){
             this.tile.monster = null;
+
+            this.offsetX = this.tile.x - tile.x;
+            this.offsetY = this.tile.y - tile.y;
         }
         this.tile = tile;
         tile.monster = this;

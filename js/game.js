@@ -18,6 +18,10 @@ const game = {
 
     gameState: "loading",
 
+    shakeAmount: 0,
+    shakeX: 0,
+    shakeY: 0,
+
     init: function(){
         game.addEventListeners();
         game.setupCanvas();
@@ -46,6 +50,8 @@ const game = {
         if(game.gameState == "running" || game.gameState == "dead"){
             // clearing the board
             game.ctx.clearRect(0, 0, game.canvas.width, game.canvas.height);
+
+            game.screenshake();
     
             // drawing the map
             for(let i=0; i<game.numTiles; i++){
@@ -78,8 +84,8 @@ const game = {
             0,
             16,
             16,
-            x*game.ts,
-            y*game.ts,
+            x*game.ts + game.shakeX,
+            y*game.ts + game.shakeY,
             game.ts,
             game.ts
         );
@@ -198,6 +204,16 @@ const game = {
             map.spawnCounter = map.spawnRate;
             map.spawnRate--;
         }
+    },
+
+    screenshake: function(){
+        if(game.shakeAmount){ // as long a game.shakeAmount > 0
+            game.shakeAmount--;
+        }
+        // trigonometry
+        let shakeAngle = Math.random() * Math.PI * 2;
+        game.shakeX = Math.round(Math.cos(shakeAngle) * game.shakeAmount);
+        game.shakeY = Math.round(Math.sin(shakeAngle) * game.shakeAmount);
     },
 
     showTitle: function(){

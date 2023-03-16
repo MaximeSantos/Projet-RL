@@ -132,6 +132,8 @@ class Player extends Monster {
         super(tile, 0, 3);
         this.isPlayer = true;
         this.teleportCounter = 0;
+        // gets all spells names with Object.keys, shuffle them, grab x (game.numSpells) of them & assign them to this.spell (the player's spells)
+        this.spells = util.shuffle(Object.keys(spells)).splice(0, game.numSpells); 
     }
 
     // we override the method in Monster
@@ -144,6 +146,20 @@ class Player extends Monster {
 
     wait(){
         game.tick();
+    }
+
+    // add a new single spell to our player
+    addSpell(){
+        let newSpell = util.shuffle(Object.keys(spells))[0]; // TODO Make it so you cant get the same spell twice        this.spells.push(newSpell);
+    }
+
+    castSpell(index){
+        let spellName = this.spells[index];
+        if(spellName){
+            delete this.spells[index];
+            spells[spellName]();
+            game.tick();
+        }
     }
 }
 

@@ -10,6 +10,7 @@ const game = {
 
     startingHp: 3,
     numLevels: 6,
+    numSpells: null,
     nbTreasures: 3,
     score: null,
 
@@ -21,7 +22,10 @@ const game = {
     shakeAmount: 0,
     shakeX: 0,
     shakeY: 0,
-
+    
+    // TODO Add more information on how to play the game on the page
+    // TODO add a button so that the player can reset the run himself without having to refresh
+    
     init: function(){
         game.addEventListeners();
         game.setupCanvas();
@@ -30,7 +34,7 @@ const game = {
 
     addEventListeners: function(){
         document.querySelector('html').addEventListener('keypress', game.handleKeyPresses);
-        spritesheet.addEventListener('load', game.showTitle); // test
+        spritesheet.addEventListener('load', game.showTitle);
     },
 
     setupCanvas: function (){
@@ -61,16 +65,21 @@ const game = {
             }
     
             // drawing the monsters
-            for(let i = 0; i<map.monsters.length; i++){
+            for(let i = 0, len=map.monsters.length; i < len; i++){
                 map.monsters[i].draw();
             }
     
             // drawing the player
             game.player.draw();
 
+            // drawing the UI
             game.drawText("Level: " + game.level, 30, false, 40, "violet");
+            game.drawText("Score: " + game.score, 30, false, 70, "violet");
 
-            game.drawText("Level: " + game.score, 30, false, 70, "violet");
+            for(let i = 0, len = game.player.spells.length; i < len; i++){
+                let spellText = (i + 1) + ") " + (game.player.spells[i] || "");
+                game.drawText(spellText, 20, false, 110 + i * 40, "aqua");
+            }
         }
     },
 
@@ -125,7 +134,7 @@ const game = {
             });
             scores.unshift(newestScore);
 
-            for(let i = 0; i<Math.min(10, scores.length); i++){
+            for(let i = 0, len = Math.min(10, scores.length); i < len; i++){
                 let scoreText = util.rightPad([scores[i].run, scores[i].score, scores[i].totalScore]);
                 game.drawText(
                     scoreText,
@@ -231,6 +240,7 @@ const game = {
     startGame: function(){
         game.level = 1;
         game.score = 0;
+        game.numSpells = 9;
 
         game.startLevel(game.startingHp);
 
@@ -239,6 +249,7 @@ const game = {
 
     
     startLevel: function(playerHp){
+        map.monsters = [];
         map.spawnRate = 15;                 // TODO we could change this value to adjust difficulty
         map.spawnCounter = map.spawnRate;
 
@@ -261,6 +272,8 @@ const game = {
             if(e.key=="q") game.player.tryMove(-1, 0);
             if(e.key=="d") game.player.tryMove(1, 0);
             if(e.key==" ") game.player.wait();
+
+            if(e.key >= 1 && e.key <= 9) game.player.castSpell(e.key - 1);
         }
     },
 };

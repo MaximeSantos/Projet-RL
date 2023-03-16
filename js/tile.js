@@ -90,6 +90,12 @@ class Floor extends Tile {
     stepOn(monster){
         if(monster.isPlayer && this.treasure){
             game.score++;
+
+            if(game.score % 3 == 0 && game.numSpells < 9){
+                game.numSpells++;
+                game.player.addSpell();
+            }
+
             this.treasure = false;
             map.spawnMonster();
         }
@@ -102,7 +108,7 @@ class Wall extends Tile {
     };
 }
 
-class Exit extends Tile {
+class Exit extends Tile { // TODO Make it so you can step on Exits, however if you wait on them, then you go up ? Would allow you to pass through them - maybe add a prompt in the UI
     constructor (x, y){
         super(x, y, 11, true);
     }
@@ -112,11 +118,12 @@ class Exit extends Tile {
         if (monster.isPlayer){
             if(game.level == game.numLevels){
                 // victory
-                game.addScore(score, true);
+                game.addScore(game.score, true);
                 game.showTitle();
             }else{
+                // next level
                 game.level++;
-                game.startLevel(Math.min(game.maxHp, game.player.hp+1));
+                game.startLevel(Math.min(game.maxHp, game.player.hp + 1));
             }
         }
     }
